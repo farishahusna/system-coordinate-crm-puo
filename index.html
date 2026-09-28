@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Taburan Stesen CRM PUO</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #0f172a; color: #f8fafc; padding: 15px; }
+        
+        header { 
+            background: linear-gradient(135deg, #1e3a8a, #0f172a); 
+            padding: 15px 20px; 
+            border-radius: 10px; 
+            margin-bottom: 15px; 
+            border: 1px solid #1e293b;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        header h1 { font-size: 20px; color: #38bdf8; margin-bottom: 4px; }
+        header p { font-size: 13px; color: #94a3b8; }
+
+        .layout { display: flex; flex-wrap: wrap; gap: 15px; }
+        
+        #map { 
+            height: 650px; 
+            flex: 2 1 600px; 
+            border-radius: 10px; 
+            border: 1px solid #334155; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5); 
+        }
+        
+        .panel { 
+            flex: 1 1 350px; 
+            background: #1e293b; 
+            padding: 15px; 
+            border-radius: 10px; 
+            border: 1px solid #334155; 
+            height: 650px; 
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .panel h2 { 
+            font-size: 15px; 
+            color: #38bdf8; 
+            border-bottom: 1px solid #334155; 
+            padding-bottom: 8px; 
+            margin-bottom: 10px; 
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 8px 12px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: white;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        .search-box:focus { outline: none; border-color: #38bdf8; }
+
+        .upload-box {
+            background: #0f172a;
+            border: 1px dashed #38bdf8;
+            padding: 8px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .upload-box input { display: none; }
+        .upload-btn {
+            background: #0284c7;
+            color: white;
+            padding: 5px 10px;
+            font-size: 11px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-block;
+            font-weight: 600;
+        }
+        .upload-btn:hover { background: #0369a1; }
+
+        .btn-reset {
+            background: #334155;
+            color: #cbd5e1;
+            border: none;
+            padding: 5px 10px;
+            font-size: 11px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            font-weight: 600;
+            width: 100%;
+        }
+        .btn-reset:hover { background: #475569; color: white; }
+        
+        .table-container { flex: 1; overflow-y: auto; border: 1px solid #334155; border-radius: 6px; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th, td { border: 1px solid #334155; padding: 7px; text-align: left; }
+        th { background-color: #0f172a; color: #38bdf8; position: sticky; top: 0; z-index: 1; }
+        tr:nth-child(even) { background-color: #1a2332; }
+        tr:hover { background-color: #334155; cursor: pointer; }
+        .traverse-header { background-color: #0b1329 !important; color: #f59e0b; font-weight: bold; text-align: center; }
+
+        .crm-label {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid #38bdf8;
+            color: #38bdf8;
+            font-weight: bold;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Sistem Taburan Stesen CRM PUO</h1>
+        <p>Projek FYP Geomatik | Visualisasi Lokasi Stesen CRM (Traverse 1, 2, 3 & 4)</p>
+    </header>
+
+    <div class="layout">
+        <div id="map"></div>
+
+        <div class="panel">
+            <h2>Senarai Koordinat Stesen CRM</h2>
+            
+            <input type="text" id="search-input" class="search-box" placeholder="Cari stesen CRM (cth: CRM 14)...">
+
+            <div class="upload-box">
+                <span style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 4px;">Import Fail Google Earth (.kml):</span>
+                <label for="kml-file" class="upload-btn">📁 Import Fail KML</label>
+                <input type="file" id="kml-file" accept=".kml">
+            </div>
+
+            <button class="btn-reset" id="reset-map-btn">📍 Reset Paparan Peta</button>
+
+            <div class="table-container">
+                <table id="station-table">
+                    <thead>
+                        <tr>
+                            <th>CRM</th>
+                            <th>Utaraan (N) [m]</th>
+                            <th>Timuran (E) [m]</th>
+                        </tr>
+                    </thead>
+                    <tbody id="station-table-body">
+                        <!-- Data dimasukkan via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-kml/L.KML.js"></script>
+
+    <script>
+        function dmsToDecimal(deg, min, sec) {
+            return deg + (min / 60) + (sec / 3600);
+        }
+
+        const dataCRM = [
+            // --- TRAVERSE 1 ---
+            { traverse: "Traverse 1", crm: "CRM 15", n: 103529.235, e: 34513.156, lat: dmsToDecimal(4, 35, 18.20), lng: dmsToDecimal(101, 7, 35.17), img: null },
+            { traverse: "Traverse 1", crm: "CRM 14", n: 103510.145, e: 34490.480, lat: dmsToDecimal(4, 35, 17.58), lng: dmsToDecimal(101, 7, 34.43), img: null },
+            { traverse: "Traverse 1", crm: "CRM 12", n: 103531.455, e: 34469.148, lat: dmsToDecimal(4, 35, 18.28), lng: dmsToDecimal(101, 7, 33.74), img: null },
+            { traverse: "Traverse 1", crm: "CRM 20", n: 103524.778, e: 34447.191, lat: dmsToDecimal(4, 35, 18.06), lng: dmsToDecimal(101, 7, 33.03), img: null },
+            { traverse: "Traverse 1", crm: "CRM 19", n: 103524.789, e: 34412.198, lat: dmsToDecimal(4, 35, 18.06), lng: dmsToDecimal(101, 7, 31.89), img: null },
+            { traverse: "Traverse 1", crm: "CRM 13", n: 103575.433, e: 34462.167, lat: dmsToDecimal(4, 35, 19.71), lng: dmsToDecimal(101, 7, 33.51), img: null },
+            { traverse: "Traverse 1", crm: "CRM 23", n: 103549.992, e: 34492.777, lat: dmsToDecimal(4, 35, 18.88), lng: dmsToDecimal(101, 7, 34.51), img: null },
+            { traverse: "Traverse 1", crm: "CRM 22", n: 103531.904, e: 34533.001, lat: dmsToDecimal(4, 35, 18.29), lng: dmsToDecimal(101, 7, 35.81), img: null },
+
+            // --- TRAVERSE 2 ---
+            { traverse: "Traverse 2", crm: "CRM 11", n: 103442.648, e: 34186.777, lat: dmsToDecimal(4, 35, 15.39), lng: dmsToDecimal(101, 7, 24.58), img: null },
+            { traverse: "Traverse 2", crm: "CRM 1",  n: 103491.952, e: 34288.913, lat: dmsToDecimal(4, 35, 16.99), lng: dmsToDecimal(101, 7, 27.89), img: null },
+            { traverse: "Traverse 2", crm: "CRM 2",  n: 103409.660, e: 34321.018, lat: dmsToDecimal(4, 35, 14.31), lng: dmsToDecimal(101, 7, 28.93), img: null },
+
+            // --- TRAVERSE 3 ---
+            { traverse: "Traverse 3", crm: "CRM 5",  n: 103408.610, e: 34098.040, lat: dmsToDecimal(4, 35, 14.28), lng: dmsToDecimal(101, 7, 21.70), img: "CRM 5.jpeg" },
+            { traverse: "Traverse 3", crm: "CRM 4",  n: 103354.392, e: 34129.577, lat: dmsToDecimal(4, 35, 12.52), lng: dmsToDecimal(101, 7, 22.72), img: null },
+            { traverse: "Traverse 3", crm: "CRM 18", n: 103277.792, e: 34014.615, lat: dmsToDecimal(4, 35, 10.03), lng: dmsToDecimal(101, 7, 18.99), img: null },
+            { traverse: "Traverse 3", crm: "CRM 10", n: 103350.886, e: 33928.055, lat: dmsToDecimal(4, 35, 12.41), lng: dmsToDecimal(101, 7, 16.18), img: null },
+
+            // --- TRAVERSE 4 ---
+            { traverse: "Traverse 4", crm: "CRM 6",  n: 103570.830, e: 34012.176, lat: dmsToDecimal(4, 35, 19.57), lng: dmsToDecimal(101, 7, 18.92), img: "CRM 6.jpeg" },
+            { traverse: "Traverse 4", crm: "CRM 7",  n: 103705.081, e: 34026.147, lat: dmsToDecimal(4, 35, 23.94), lng: dmsToDecimal(101, 7, 19.37), img: "CRM 7.jpeg" },
+            { traverse: "Traverse 4", crm: "CRM 17", n: 103838.092, e: 34211.963, lat: dmsToDecimal(4, 35, 28.26), lng: dmsToDecimal(101, 7, 25.40), img: "CRM 17.jpeg" },
+            { traverse: "Traverse 4", crm: "CRM 16", n: 103760.137, e: 34181.568, lat: dmsToDecimal(4, 35, 25.73), lng: dmsToDecimal(101, 7, 24.41), img: "CRM 16.jpeg" },
+            { traverse: "Traverse 4", crm: "CRM 8",  n: 103606.849, e: 34252.845, lat: dmsToDecimal(4, 35, 20.73), lng: dmsToDecimal(101, 7, 26.72), img: null },
+            { traverse: "Traverse 4", crm: "CRM 9",  n: 103580.254, e: 34291.529, lat: dmsToDecimal(4, 35, 19.87), lng: dmsToDecimal(101, 7, 27.98), img: null }
+        ];
+
+        const googleSat = L.tileLayer('https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+            attribution: '© Google Maps'
+        });
+
+        const osmMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        });
+
+        const initialCenter = [4.5880, 101.1235];
+        const initialZoom = 17;
+
+        const map = L.map('map', {
+            center: initialCenter,
+            zoom: initialZoom,
+            layers: [googleSat]
+        });
+
+        L.control.layers({ "Google Satellite": googleSat, "OpenStreetMap": osmMap }).addTo(map);
+
+        const crmPointIcon = L.divIcon({
+            className: 'custom-crm-point',
+            html: `<div style="background-color:#38bdf8; width:12px; height:12px; border-radius:50%; border:2px solid white; box-shadow:0 0 5px rgba(0,0,0,0.8);"></div>`,
+            iconSize: [12, 12],
+            iconAnchor: [6, 6]
+        });
+
+        const tableBody = document.getElementById('station-table-body');
+        const markersMap = {};
+
+        function renderTable(filterText = '') {
+            tableBody.innerHTML = '';
+            let currentTraverse = '';
+
+            dataCRM.forEach(item => {
+                if (filterText && !item.crm.toLowerCase().includes(filterText.toLowerCase())) {
+                    return;
+                }
+
+                if (!filterText && item.traverse !== currentTraverse) {
+                    currentTraverse = item.traverse;
+                    const headerRow = document.createElement('tr');
+                    headerRow.innerHTML = `<td colspan="3" class="traverse-header">📌 ${currentTraverse}</td>`;
+                    tableBody.appendChild(headerRow);
+                }
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><b style="color:#38bdf8">${item.crm}</b></td>
+                    <td>${item.n.toFixed(3)}</td>
+                    <td>${item.e.toFixed(3)}</td>
+                `;
+
+                row.addEventListener('click', () => {
+                    map.flyTo([item.lat, item.lng], 19);
+                    if (markersMap[item.crm]) {
+                        markersMap[item.crm].openPopup();
+                    }
+                });
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        dataCRM.forEach(item => {
+            const marker = L.marker([item.lat, item.lng], { icon: crmPointIcon }).addTo(map);
+            
+            marker.bindTooltip(`${item.crm}`, { 
+                permanent: true, 
+                direction: 'top', 
+                className: 'crm-label',
+                offset: [0, -6]
+            });
+
+            let imageHTML = item.img ? 
+                `<br><img src="${item.img}" alt="${item.crm}" style="width:100%; max-height:140px; object-fit:cover; border-radius:4px; margin-top:5px;">` : 
+                `<br><i style="color:#64748b; font-size:11px;">(Gambar belum tersedia)</i>`;
+
+            marker.bindPopup(`
+                <div style="color:#0f172a; font-size:12px; width:180px;">
+                    <b style="color:#0284c7; font-size:13px;">${item.crm}</b><br><hr style="margin:4px 0;">
+                    <b>Utaraan (N):</b> ${item.n.toFixed(3)} m<br>
+                    <b>Timuran (E):</b> ${item.e.toFixed(3)} m<br>
+                    <b>Lat/Lng:</b> ${item.lat.toFixed(6)}, ${item.lng.toFixed(6)}
+                    ${imageHTML}
+                </div>
+            `);
+
+            markersMap[item.crm] = marker;
+        });
+
+        renderTable();
+
+        document.getElementById('search-input').addEventListener('input', function(e) {
+            renderTable(e.target.value);
+        });
+
+        document.getElementById('reset-map-btn').addEventListener('click', function() {
+            map.flyTo(initialCenter, initialZoom);
+        });
+
+        document.getElementById('kml-file').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (evt) {
+                const parser = new DOMParser();
+                const kml = parser.parseFromString(evt.target.result, 'text/xml');
+                const track = new L.KML(kml);
+                map.addLayer(track);
+
+                const bounds = track.getBounds();
+                if (bounds.isValid()) {
+                    map.fitBounds(bounds);
+                }
+                alert("Fail KML berjaya diimport!");
+            };
+            reader.readAsText(file);
+        });
+    </script>
+</body>
+</html>
