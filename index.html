@@ -97,7 +97,7 @@
 
     <header>
         <h1>Sistem Taburan Stesen CRM PUO</h1>
-        <p>Projek FYP Geomatik | Visualisasi Lokasi Stesen CRM (Traverse 1, 2, 3 & 4)</p>
+        <p>Projek FYP Geomatik | Visualisasi Lokasi Stesen CRM (CRM 1 hingga CRM 23)</p>
     </header>
 
     <div class="layout">
@@ -137,36 +137,29 @@
             return deg + (min / 60) + (sec / 3600);
         }
 
-        // Senarai data CRM (Hanya CRM 5, 6, 7, 16 dan 17 sahaja yang mempunyai imej)
+        // Senarai data CRM disusun mengikut nombor dari CRM 1 hingga CRM 23
         const dataCRM = [
-            // --- TRAVERSE 1 ---
-            { crm: "CRM 15", n: 103529.235, e: 34513.156, lat: dmsToDecimal(4, 35, 18.20), lng: dmsToDecimal(101, 7, 35.17), img: null },
-            { crm: "CRM 14", n: 103510.145, e: 34490.480, lat: dmsToDecimal(4, 35, 17.58), lng: dmsToDecimal(101, 7, 34.43), img: null },
-            { crm: "CRM 12", n: 103531.455, e: 34469.148, lat: dmsToDecimal(4, 35, 18.28), lng: dmsToDecimal(101, 7, 33.74), img: null },
-            { crm: "CRM 20", n: 103524.778, e: 34447.191, lat: dmsToDecimal(4, 35, 18.06), lng: dmsToDecimal(101, 7, 33.03), img: null },
-            { crm: "CRM 19", n: 103524.789, e: 34412.198, lat: dmsToDecimal(4, 35, 18.06), lng: dmsToDecimal(101, 7, 31.89), img: null },
-            { crm: "CRM 13", n: 103575.433, e: 34462.167, lat: dmsToDecimal(4, 35, 19.71), lng: dmsToDecimal(101, 7, 33.51), img: null },
-            { crm: "CRM 23", n: 103549.992, e: 34492.777, lat: dmsToDecimal(4, 35, 18.88), lng: dmsToDecimal(101, 7, 34.51), img: null },
-            { crm: "CRM 22", n: 103531.904, e: 34533.001, lat: dmsToDecimal(4, 35, 18.29), lng: dmsToDecimal(101, 7, 35.81), img: null },
-
-            // --- TRAVERSE 2 ---
-            { crm: "CRM 11", n: 103442.648, e: 34186.777, lat: dmsToDecimal(4, 35, 15.39), lng: dmsToDecimal(101, 7, 24.58), img: null },
             { crm: "CRM 1",  n: 103491.952, e: 34288.913, lat: dmsToDecimal(4, 35, 16.99), lng: dmsToDecimal(101, 7, 27.89), img: null },
             { crm: "CRM 2",  n: 103409.660, e: 34321.018, lat: dmsToDecimal(4, 35, 14.31), lng: dmsToDecimal(101, 7, 28.93), img: null },
-
-            // --- TRAVERSE 3 ---
-            { crm: "CRM 5",  n: 103408.610, e: 34098.040, lat: dmsToDecimal(4, 35, 14.28), lng: dmsToDecimal(101, 7, 21.70), img: "CRM 5.jpeg" },
             { crm: "CRM 4",  n: 103354.392, e: 34129.577, lat: dmsToDecimal(4, 35, 12.52), lng: dmsToDecimal(101, 7, 22.72), img: null },
-            { crm: "CRM 18", n: 103277.792, e: 34014.615, lat: dmsToDecimal(4, 35, 10.03), lng: dmsToDecimal(101, 7, 18.99), img: null },
-            { crm: "CRM 10", n: 103350.886, e: 33928.055, lat: dmsToDecimal(4, 35, 12.41), lng: dmsToDecimal(101, 7, 16.18), img: null },
-
-            // --- TRAVERSE 4 ---
+            { crm: "CRM 5",  n: 103408.610, e: 34098.040, lat: dmsToDecimal(4, 35, 14.28), lng: dmsToDecimal(101, 7, 21.70), img: "CRM 5.jpeg" },
             { crm: "CRM 6",  n: 103570.830, e: 34012.176, lat: dmsToDecimal(4, 35, 19.57), lng: dmsToDecimal(101, 7, 18.92), img: "CRM 6.jpeg" },
             { crm: "CRM 7",  n: 103705.081, e: 34026.147, lat: dmsToDecimal(4, 35, 23.94), lng: dmsToDecimal(101, 7, 19.37), img: "CRM 7.jpeg" },
-            { crm: "CRM 17", n: 103838.092, e: 34211.963, lat: dmsToDecimal(4, 35, 28.26), lng: dmsToDecimal(101, 7, 25.40), img: "CRM 17.jpeg" },
-            { crm: "CRM 16", n: 103760.137, e: 34181.568, lat: dmsToDecimal(4, 35, 25.73), lng: dmsToDecimal(101, 7, 24.41), img: "CRM 16.jpeg" },
             { crm: "CRM 8",  n: 103606.849, e: 34252.845, lat: dmsToDecimal(4, 35, 20.73), lng: dmsToDecimal(101, 7, 26.72), img: null },
-            { crm: "CRM 9",  n: 103580.254, e: 34291.529, lat: dmsToDecimal(4, 35, 19.87), lng: dmsToDecimal(101, 7, 27.98), img: null }
+            { crm: "CRM 9",  n: 103580.254, e: 34291.529, lat: dmsToDecimal(4, 35, 19.87), lng: dmsToDecimal(101, 7, 27.98), img: null },
+            { crm: "CRM 10", n: 103350.886, e: 33928.055, lat: dmsToDecimal(4, 35, 12.41), lng: dmsToDecimal(101, 7, 16.18), img: null },
+            { crm: "CRM 11", n: 103442.648, e: 34186.777, lat: dmsToDecimal(4, 35, 15.39), lng: dmsToDecimal(101, 7, 24.58), img: null },
+            { crm: "CRM 12", n: 103531.455, e: 34469.148, lat: dmsToDecimal(4, 35, 18.28), lng: dmsToDecimal(101, 7, 33.74), img: null },
+            { crm: "CRM 13", n: 103575.433, e: 34462.167, lat: dmsToDecimal(4, 35, 19.71), lng: dmsToDecimal(101, 7, 33.51), img: null },
+            { crm: "CRM 14", n: 103510.145, e: 34490.480, lat: dmsToDecimal(4, 35, 17.58), lng: dmsToDecimal(101, 7, 34.43), img: null },
+            { crm: "CRM 15", n: 103529.235, e: 34513.156, lat: dmsToDecimal(4, 35, 18.20), lng: dmsToDecimal(101, 7, 35.17), img: null },
+            { crm: "CRM 16", n: 103760.137, e: 34181.568, lat: dmsToDecimal(4, 35, 25.73), lng: dmsToDecimal(101, 7, 24.41), img: "CRM 16.jpeg" },
+            { crm: "CRM 17", n: 103838.092, e: 34211.963, lat: dmsToDecimal(4, 35, 28.26), lng: dmsToDecimal(101, 7, 25.40), img: "CRM 17.jpeg" },
+            { crm: "CRM 18", n: 103277.792, e: 34014.615, lat: dmsToDecimal(4, 35, 10.03), lng: dmsToDecimal(101, 7, 18.99), img: null },
+            { crm: "CRM 19", n: 103524.789, e: 34412.198, lat: dmsToDecimal(4, 35, 18.06), lng: dmsToDecimal(101, 7, 31.89), img: null },
+            { crm: "CRM 20", n: 103524.778, e: 34447.191, lat: dmsToDecimal(4, 35, 18.06), lng: dmsToDecimal(101, 7, 33.03), img: null },
+            { crm: "CRM 22", n: 103531.904, e: 34533.001, lat: dmsToDecimal(4, 35, 18.29), lng: dmsToDecimal(101, 7, 35.81), img: null },
+            { crm: "CRM 23", n: 103549.992, e: 34492.777, lat: dmsToDecimal(4, 35, 18.88), lng: dmsToDecimal(101, 7, 34.51), img: null }
         ];
 
         const googleSat = L.tileLayer('https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
